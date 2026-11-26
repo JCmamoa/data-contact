@@ -5,13 +5,14 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
 ![Prometheus](https://img.shields.io/badge/Observability-OpenTelemetry%20%2B%20Prometheus-E6522C?logo=prometheus&logoColor=white)
 ![Tests](https://img.shields.io/badge/Tests-27%20Passing%20%7C%2020%2F20%20Quality-22c55e)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 A production-grade analytics engineering platform demonstrating **Shift-Left Data Contracts**, **Medallion + Dimensional Modeling (dbt Core + SCD Type 2)**, a **Centralized Headless Semantic Layer**, **Cloud Mirror IaC (AWS + Databricks)**, and **Full-Stack Observability & k6 Load Testing**.
 
-> 🔍 **Recruiter Showcase & Live Evidence:**
-> - 🌐 **[Interactive Showcase (`docs/index.html`)](docs/index.html)** — GitHub Pages ready dashboard built from real pipeline outputs.
-> - 📄 **[Live Execution Proof (`docs/DEMO.md`)](docs/DEMO.md)** — Verified contract block/quarantine payload, 20/20 quality tests, SCD2 versioning, and governed semantic metrics.
-> - 📐 **[Architecture & Materialization Trade-offs (`docs/ARCHITECTURE_TRADEOFFS.md`)](docs/ARCHITECTURE_TRADEOFFS.md)** & **[ADRs](docs/adr)**
+> 🔗 **Repository:** [github.com/JCmamoa/data-contact](https://github.com/JCmamoa/data-contact)
+> 🌐 **Interactive Showcase (GitHub Pages):** [jcmamoa.github.io/data-contact](https://jcmamoa.github.io/data-contact/) *(enable Pages on `main` / `/docs`)*
+> 📄 **Live Execution Proof:** [`docs/DEMO.md`](docs/DEMO.md) · **REST API Reference:** [`docs/API.md`](docs/API.md)
+> 📐 **Architecture & Materialization Trade-offs:** [`docs/ARCHITECTURE_TRADEOFFS.md`](docs/ARCHITECTURE_TRADEOFFS.md) · [**ADRs**](docs/adr)
 
 ---
 
@@ -125,3 +126,5 @@ BASE_URL=https://semantic-api.staging.example.com k6 run tests/load/k6_semantic_
 * [ADR-001: Shift-Left Data Contracts with Dead-Letter Quarantine](docs/adr/001-shift-left-data-contracts.md)
 * [ADR-002: Layer-Specific Warehouse Materialization Strategy](docs/adr/002-materialization-strategy.md)
 * [ADR-003: Centralized Headless Semantic Layer](docs/adr/003-centralized-semantic-layer.md)
+* [API Reference (`docs/API.md`)](docs/API.md)
+* [Security Policy (`SECURITY.md`)](SECURITY.md) · [Contributing (`CONTRIBUTING.md`)](CONTRIBUTING.md) · [MIT License (`LICENSE`)](LICENSE)
