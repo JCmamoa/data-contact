@@ -1,0 +1,150 @@
+name: CI - Data Contracts & Semantic Platform
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-tests-and-syntax:
+    name: Python Compile, Unit Tests & dbt/YAML Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Byte-compile Python sources
+        run: python -m compileall -q .
+
+      - name: Run unittest suite
+        run: |
+          if [ -d "tests" ]; then
+            python -m unittest discover -s tests -p "test_*.py" -v
+          else
+            echo "No tests/ directory found; skipping unittest discovery."
+          fi
+
+      - name: Validate JSON files (Databricks workflow & configs)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          json_files = list(Path(".").rglob("*.json"))
+          for path in json_files:
+              if ".venv" in path.parts or "node_modules" in path.parts:
+                  continue
+              with path.open("r", encoding="utf-8") as fh:
+                  json.load(fh)
+              print(f"Valid JSON: {path}")
+          PY
+
+      - name: Validate YAML & dbt SQL syntax
+        run: |
+          python - <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+          import yaml
+
+          errors = []
+
+          for ext in ("*.yml", "*.yaml"):
+              for path in Path(".").rglob(ext):
+                  if any(p in path.parts for p in (".venv", "target", "dbt_packages")):
+                      continue
+                  try:
+                      with path.open("r", encoding="utf-8") as fh:
+                          list(yaml.safe_load_all(fh))
+                      print(f"Valid YAML: {path}")
+                  except yaml.YAMLError as exc:
+                      errors.append(f"YAML syntax error in {path}: {exc}")
+
+          sql_roots = [p for p in Path(".").rglob("*.sql") if "target" not in p.parts and "dbt_packages" not in p.parts]
+          for sql_path in sql_roots:
+              content = sql_path.read_text(encoding="utf-8").strip()
+              if not content:
+                  errors.append(f"Empty SQL file: {sql_path}")
+                  continue
+              if content.count("{{") != content.count("}}"):
+                  errors.append(f"Unbalanced Jinja expression '{{{{ ... }}}}' in {sql_path}")
+              if content.count("{%") != content.count("%}"):
+                  errors.append(f"Unbalanced Jinja statement '{{% ... %}}' in {sql_path}")
+              if not re.search(r"\b(select|with|create|insert|merge)\b", content, re.IGNORECASE):
+                  errors.append(f"No SQL DML/DQL keyword found in {sql_path}")
+              print(f"Valid SQL/Jinja: {sql_path}")
+
+          if errors:
+              for err in errors:
+                  print(f"ERROR: {err}", file=sys.stderr)
+              sys.exit(1)
+          PY
+
+      - name: Run dbt parse (if dbt_project.yml exists)
+        run: |
+          DBT_DIR=$(find . -maxdepth 2 -name "dbt_project.yml" -exec dirname {} \; | head -n 1)
+          if [ -n "$DBT_DIR" ]; then
+            echo "Found dbt project in $DBT_DIR"
+            mkdir -p /tmp/dbt_ci_profiles
+            cat <<'EOF' > /tmp/dbt_ci_profiles/profiles.yml
+          data_contracts_warehouse:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                host: localhost
+                user: analytics
+                password: ci_dummy_password
+                port: 5432
+                dbname: analytics_dw
+                schema: analytics
+                threads: 2
+          EOF
+            dbt parse --project-dir "$DBT_DIR" --profiles-dir /tmp/dbt_ci_profiles
+          else
+            echo "No dbt_project.yml found; skipping dbt parse."
+          fi
+
+  docker-and-iac-validation:
+    name: Docker Compose & Terraform Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose configuration
+        run: |
+          cp .env.example .env
+          docker compose config -q
+          echo "docker compose config validated successfully."
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      - name: Terraform fmt & validate (Cloud Mirror)
+        working-directory: infra/aws
+        run: |
+          terraform fmt -check -recursive
+          terraform init -backend=false
+          terraform validate

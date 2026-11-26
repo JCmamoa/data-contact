@@ -1,0 +1,50 @@
+dataset: raw_payments
+version: "1.0.0"
+owner: payments-finops-team
+description: "Payment gateway settlement and fee records linked to orders."
+block_on_critical: true
+sla:
+  freshness_hours: 6
+  completeness_pct: 99.99
+  delivery_schedule: "0 * * * *"
+columns:
+  payment_id:
+    type: str
+    nullable: false
+    primary_key: true
+    description: "Unique payment transaction identifier"
+  order_id:
+    type: str
+    nullable: false
+    description: "Foreign key to raw_orders.order_id"
+  payment_method:
+    type: str
+    nullable: false
+    allowed_values:
+      - pix
+      - credit_card
+      - boleto
+      - wire
+    description: "Payment instrument used for settlement"
+  gateway_fee:
+    type: float
+    nullable: false
+    min: 0.0
+    description: "Processor fee charged on transaction"
+  paid_amount:
+    type: float
+    nullable: false
+    min: 0.0
+    description: "Total settled payment amount"
+  payment_status:
+    type: str
+    nullable: false
+    allowed_values:
+      - captured
+      - refunded
+      - failed
+    description: "Gateway settlement status"
+  paid_at:
+    type: str
+    nullable: false
+    description: "ISO-8601 payment settlement timestamp"

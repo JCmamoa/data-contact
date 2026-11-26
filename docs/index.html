@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Contracts & Semantic Layer — Portfolio Showcase</title>
+  <style>
+    :root { --bg:#020617; --surf:#0f172a; --border:#334155; --text:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --green:#34d399; --red:#f87171; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+    .wrap { max-width:1160px; margin:0 auto; padding:28px 20px 60px; }
+    h1 { margin:0; font-size:1.8rem; }
+    .sub { color:var(--muted); margin:6px 0 22px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-bottom:22px; }
+    .charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px; margin-bottom:22px; }
+    .card { background:var(--surf); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .lbl { font-size:.78rem; color:var(--muted); text-transform:uppercase; }
+    .val { font-size:1.45rem; font-weight:700; color:var(--green); margin-top:4px; }
+    pre { background:#020617; border:1px solid var(--border); border-radius:10px; padding:12px; overflow:auto; font-size:.82rem; color:#cbd5e1; }
+    .badge { display:inline-block; padding:3px 9px; border-radius:999px; font-size:.75rem; font-weight:600; background:#1e293b; border:1px solid var(--border); }
+    .badge.block { color:var(--red); border-color:rgba(248,113,113,.4); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🏛️ Plataforma Analítica com Contratos de Dados e Camada Semântica</h1>
+    <div class="sub">Saídas reais geradas por <code>pipeline/runner.py</code> (Contratos YAML + dbt/SCD2 + OBT Incremental + Camada Semântica).</div>
+    <div class="grid" id="kpis"></div>
+    <div class="charts">
+      <div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 310" width="100%">
+  <rect width="740" height="310" rx="14" fill="#0f172a"/>
+  <rect x="1" y="1" width="738" height="308" rx="13" fill="none" stroke="#1e293b"/>
+  <text x="24" y="34" fill="#f8fafc" font-size="16" font-weight="700" font-family="Inter,system-ui,sans-serif">Receita Líquida por País (Camada Semântica Centralizada)</text>
+  <text x="24" y="52" fill="#64748b" font-size="11.5" font-family="ui-monospace,monospace">metric=net_revenue | dimensions=[country] | mart_revenue_analytics</text>
+  <text x="108" y="88" fill="#e2e8f0" font-size="13" font-family="Inter,system-ui,sans-serif" text-anchor="end">BR</text><rect x="120" y="72" width="500.0" height="24" rx="6" fill="#38bdf8" opacity="0.92"/><text x="630.0" y="89" fill="#94a3b8" font-size="12" font-family="ui-monospace,monospace">$192,240.10</text><text x="108" y="140" fill="#e2e8f0" font-size="13" font-family="Inter,system-ui,sans-serif" text-anchor="end">DE</text><rect x="120" y="124" width="45.5" height="24" rx="6" fill="#34d399" opacity="0.92"/><text x="175.5" y="141" fill="#94a3b8" font-size="12" font-family="ui-monospace,monospace">$17,500.34</text><text x="108" y="192" fill="#e2e8f0" font-size="13" font-family="Inter,system-ui,sans-serif" text-anchor="end">UK</text><rect x="120" y="176" width="53.7" height="24" rx="6" fill="#818cf8" opacity="0.92"/><text x="183.7" y="193" fill="#94a3b8" font-size="12" font-family="ui-monospace,monospace">$20,634.99</text><text x="108" y="244" fill="#e2e8f0" font-size="13" font-family="Inter,system-ui,sans-serif" text-anchor="end">US</text><rect x="120" y="228" width="86.8" height="24" rx="6" fill="#fbbf24" opacity="0.92"/><text x="216.8" y="245" fill="#94a3b8" font-size="12" font-family="ui-monospace,monospace">$33,378.17</text>
+</svg>
+</div>
+      <div class="card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 310" width="100%">
+  <rect width="740" height="310" rx="14" fill="#0f172a"/>
+  <rect x="1" y="1" width="738" height="308" rx="13" fill="none" stroke="#1e293b"/>
+  <text x="24" y="34" fill="#f8fafc" font-size="16" font-weight="700" font-family="Inter,system-ui,sans-serif">Tendência Mensal de Receita Líquida (Jan–Jun 2026)</text>
+  <text x="24" y="52" fill="#64748b" font-size="11.5" font-family="ui-monospace,monospace">metric=net_revenue | dimensions=[order_month] | Incremental OBT</text>
+  <line x1="84" y1="72.0" x2="706" y2="72.0" stroke="#1e293b" stroke-dasharray="4 4"/><text x="74" y="76.0" fill="#64748b" font-size="11" font-family="ui-monospace,monospace" text-anchor="end">$55,646</text><line x1="84" y1="135.3" x2="706" y2="135.3" stroke="#1e293b" stroke-dasharray="4 4"/><text x="74" y="139.3" fill="#64748b" font-size="11" font-family="ui-monospace,monospace" text-anchor="end">$44,567</text><line x1="84" y1="198.7" x2="706" y2="198.7" stroke="#1e293b" stroke-dasharray="4 4"/><text x="74" y="202.7" fill="#64748b" font-size="11" font-family="ui-monospace,monospace" text-anchor="end">$33,489</text><line x1="84" y1="262.0" x2="706" y2="262.0" stroke="#1e293b" stroke-dasharray="4 4"/><text x="74" y="266.0" fill="#64748b" font-size="11" font-family="ui-monospace,monospace" text-anchor="end">$22,410</text>
+  <polyline fill="none" stroke="#34d399" stroke-width="3" points="84.0,127.5 208.4,247.8 332.8,115.6 457.2,87.1 581.6,161.2 706.0,93.6"/>
+  <circle cx="84.0" cy="127.5" r="5" fill="#34d399"/><text x="84.0" y="292" fill="#94a3b8" font-size="11" font-family="ui-monospace,monospace" text-anchor="middle">2026-01</text><circle cx="208.4" cy="247.8" r="5" fill="#34d399"/><text x="208.4" y="292" fill="#94a3b8" font-size="11" font-family="ui-monospace,monospace" text-anchor="middle">2026-02</text><circle cx="332.8" cy="115.6" r="5" fill="#34d399"/><text x="332.8" y="292" fill="#94a3b8" font-size="11" font-family="ui-monospace,monospace" text-anchor="middle">2026-03</text><circle cx="457.2" cy="87.1" r="5" fill="#34d399"/><text x="457.2" y="292" fill="#94a3b8" font-size="11" font-family="ui-monospace,monospace" text-anchor="middle">2026-04</text><circle cx="581.6" cy="161.2" r="5" fill="#34d399"/><text x="581.6" y="292" fill="#94a3b8" font-size="11" font-family="ui-monospace,monospace" text-anchor="middle">2026-05</text><circle cx="706.0" cy="93.6" r="5" fill="#34d399"/><text x="706.0" y="292" fill="#94a3b8" font-size="11" font-family="ui-monospace,monospace" text-anchor="middle">2026-06</text>
+</svg>
+</div>
+    </div>
+    <div class="charts">
+      <div class="card">
+        <h3 style="margin-top:0">🛡️ Bloqueio por Quebra de Contrato (Quarantine + Alerta)</h3>
+        <span class="badge block">BLOCKED AT INGESTION</span>
+        <pre id="contract-json"></pre>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">📐 Métricas Governadas (Camada Semântica)</h3>
+        <pre id="metrics-json"></pre>
+      </div>
+    </div>
+  </div>
+  <script>
+    const D = {"correlation_id": "f3639af7c4f447afad9d3f9429262084", "quality_passed": 20, "quality_total": 20, "scd2_versions": 8, "tables": {"stg_customers": 20, "stg_products": 8, "stg_orders": 150, "stg_payments": 146, "snap_customers_scd2": 28, "snap_products_scd2": 8, "dim_customers": 20, "dim_products": 8, "fct_orders": 150, "fct_payments": 146, "mart_revenue_analytics": 150}, "blocked_demo": {"dataset": "raw_orders", "contract_version": "1.0.0", "correlation_id": "f3639af7c4f447afad9d3f9429262084_corrupted_orders", "total_rows": 151, "valid_rows_count": 150, "invalid_rows_count": 1, "blocked": true, "violations": [{"row_index": 150, "field_name": "order_date", "rule": "pattern", "severity": "CRITICAL", "message": "Column 'order_date' value '2026/99/99' failed pattern '^\\\\d{4}-\\\\d{2}-\\\\d{2}$'.", "raw_value": "2026/99/99"}, {"row_index": 150, "field_name": "quantity", "rule": "min_value", "severity": "CRITICAL", "message": "Column 'quantity' value 0 < min 1.", "raw_value": 0}, {"row_index": 150, "field_name": "gross_amount", "rule": "min_value", "severity": "CRITICAL", "message": "Column 'gross_amount' value -120.0 < min 0.0.", "raw_value": -120.0}, {"row_index": 150, "field_name": "order_status", "rule": "allowed_values", "severity": "CRITICAL", "message": "Column 'order_status' value 'cancelled' not in ['paid', 'refunded', 'pending'].", "raw_value": "cancelled"}, {"row_index": 150, "field_name": "currency", "rule": "allowed_values", "severity": "CRITICAL", "message": "Column 'currency' value 'JPY' not in ['BRL', 'USD', 'EUR'].", "raw_value": "JPY"}], "quarantine_file": "/tmp/tmpbw5pgnng/quarantine/raw_orders_f3639af7c4f447afad9d3f9429262084_corrupted_orders.json", "alert_dispatched": true}, "semantic_metrics": {"net_revenue": {"metric_name": "net_revenue", "label_pt": "Receita Liquida", "label_en": "Net Revenue", "sql": "SELECT SUM(CASE WHEN order_status = 'paid' THEN net_revenue ELSE 0 END) AS value FROM mart_revenue_analytics", "dimensions": [], "rows": [{"value": 263753.6}], "total_value": 263753.6, "unit": "currency", "cached": false}, "gross_revenue": {"metric_name": "gross_revenue", "label_pt": "Receita Bruta", "label_en": "Gross Revenue", "sql": "SELECT SUM(gross_revenue) AS value FROM mart_revenue_analytics", "dimensions": [], "rows": [{"value": 400906.33999999997}], "total_value": 400906.33999999997, "unit": "currency", "cached": false}, "average_order_value": {"metric_name": "average_order_value", "label_pt": "Ticket Medio", "label_en": "Average Order Value", "sql": "SELECT ROUND(AVG(CASE WHEN order_status = 'paid' THEN net_revenue END), 2) AS value FROM mart_revenue_analytics", "dimensions": [], "rows": [{"value": 2076.8}], "total_value": 2076.8, "unit": "currency", "cached": false}, "take_rate_pct": {"metric_name": "take_rate_pct", "label_pt": "Taxa de Intermediacao (%)", "label_en": "Take Rate (%)", "sql": "SELECT ROUND(100.0 * SUM(gateway_fee) / NULLIF(SUM(gross_revenue), 0), 2) AS value FROM mart_revenue_analytics", "dimensions": [], "rows": [{"value": 1.55}], "total_value": 1.55, "unit": "percent", "cached": false}, "retention_rate": {"metric_name": "retention_rate", "label_pt": "Taxa de Retencao (%)", "label_en": "Retention Rate (%)", "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS value FROM dim_customers", "dimensions": [], "rows": [{"value": 90.0}], "total_value": 90.0, "unit": "percent", "cached": false}, "churn_rate": {"metric_name": "churn_rate", "label_pt": "Taxa de Churn (%)", "label_en": "Churn Rate (%)", "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN status = 'churned' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS value FROM dim_customers", "dimensions": [], "rows": [{"value": 10.0}], "total_value": 10.0, "unit": "percent", "cached": false}}, "by_country": [{"country": "BR", "value": 192240.1}, {"country": "DE", "value": 17500.34}, {"country": "UK", "value": 20634.99}, {"country": "US", "value": 33378.17}]};
+    const kpis = [
+      ["Qualidade (dbt/SQL)", D.quality_passed + " / " + D.quality_total, "Testes automatizados OK"],
+      ["Receita Líquida Total", "$" + Number(D.semantic_metrics.net_revenue.total_value).toLocaleString(), "Métrica única governada"],
+      ["Retenção / Churn", D.semantic_metrics.retention_rate.total_value + "% / " + D.semantic_metrics.churn_rate.total_value + "%", "Soma exata 100.00%"],
+      ["SCD Tipo 2 (Snapshot 2)", "+" + D.scd2_versions + " versões", D.tables.snap_customers_scd2 + " linhas históricas"]
+    ];
+    document.getElementById("kpis").innerHTML = kpis.map(([l,v,s]) =>
+      `<div class="card"><div class="lbl">${l}</div><div class="val">${v}</div><div class="lbl" style="text-transform:none;margin-top:4px">${s}</div></div>`
+    ).join("");
+    document.getElementById("contract-json").textContent = JSON.stringify(D.blocked_demo, null, 2);
+    const simpleMetrics = Object.fromEntries(Object.entries(D.semantic_metrics).map(([k,v]) => [k, {total_value: v.total_value, unit: v.unit, sql: v.sql}]));
+    document.getElementById("metrics-json").textContent = JSON.stringify(simpleMetrics, null, 2);
+  </script>
+</body>
+</html>

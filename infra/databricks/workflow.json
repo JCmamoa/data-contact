@@ -1,0 +1,161 @@
+{
+  "name": "dcsp-lakehouse-contracts-semantic-pipeline",
+  "description": "Databricks Lakeflow Job mirroring local Data Contracts + dbt Core + Semantic Layer to Unity Catalog & Delta Live Tables.",
+  "format": "MULTI_TASK",
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 3600,
+  "tags": {
+    "platform": "data-contracts-semantic-platform",
+    "domain": "saas-revenue-analytics",
+    "governance": "unity-catalog",
+    "layer": "bronze-silver-gold-semantic"
+  },
+  "schedule": {
+    "quartz_cron_expression": "0 0 * * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "UNPAUSED"
+  },
+  "parameters": [
+    {
+      "name": "environment",
+      "default": "production"
+    },
+    {
+      "name": "catalog_name",
+      "default": "dcsp_prod"
+    },
+    {
+      "name": "contracts_version",
+      "default": "1.2.0"
+    }
+  ],
+  "email_notifications": {
+    "on_failure": [
+      "data-platform-oncall@example.com"
+    ],
+    "no_alert_for_skipped_runs": true
+  },
+  "health": {
+    "rules": [
+      {
+        "metric": "RUN_DURATION_SECONDS",
+        "op": "GREATER_THAN",
+        "value": 1800
+      }
+    ]
+  },
+  "job_clusters": [
+    {
+      "job_cluster_key": "contracts_ingestion_cluster",
+      "new_cluster": {
+        "spark_version": "15.4.x-scala2.12",
+        "node_type_id": "i3.xlarge",
+        "autoscale": {
+          "min_workers": 1,
+          "max_workers": 4
+        },
+        "data_security_mode": "USER_ISOLATION",
+        "spark_conf": {
+          "spark.databricks.delta.preview.enabled": "true",
+          "spark.sql.adaptive.enabled": "true"
+        },
+        "custom_tags": {
+          "Component": "shift-left-ingestion"
+        }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "ingest_and_validate_contracts",
+      "description": "Shift-left ingestion via PySpark + YAML Data Contracts: splits valid rows to Bronze Delta tables and routes invalid rows to Unity Catalog quarantine volume.",
+      "job_cluster_key": "contracts_ingestion_cluster",
+      "spark_python_task": {
+        "python_file": "ingestion/spark_ingest_mirror.py",
+        "parameters": [
+          "--catalog",
+          "{{job.parameters.catalog_name}}",
+          "--contracts-dir",
+          "contracts/",
+          "--quarantine-volume",
+          "/Volumes/{{job.parameters.catalog_name}}/raw/quarantine",
+          "--fail-on-critical",
+          "true"
+        ]
+      },
+      "libraries": [
+        {
+          "pypi": {
+            "package": "PyYAML>=6.0.2"
+          }
+        }
+      ],
+      "max_retries": 2,
+      "min_retry_interval_millis": 30000,
+      "timeout_seconds": 900
+    },
+    {
+      "task_key": "dbt_transform_medallion",
+      "description": "Executes dbt Core across staging (views), intermediate (ephemeral), dimensions (SCD Type 2 tables), and facts (incremental merge).",
+      "depends_on": [
+        {
+          "task_key": "ingest_and_validate_contracts"
+        }
+      ],
+      "dbt_task": {
+        "project_directory": "dbt",
+        "commands": [
+          "dbt deps",
+          "dbt build --target prod --vars '{\"catalog\": \"{{job.parameters.catalog_name}}\"}'"
+        ],
+        "schema": "marts",
+        "catalog": "{{job.parameters.catalog_name}}",
+        "warehouse_id": "databricks_sql_serverless_warehouse_id",
+        "source": "GIT"
+      },
+      "max_retries": 1,
+      "min_retry_interval_millis": 30000,
+      "timeout_seconds": 1200
+    },
+    {
+      "task_key": "dlt_unity_catalog_semantic_views",
+      "description": "Triggers Delta Live Tables pipeline & refreshes governed Unity Catalog Semantic Metric Views for BI & AI agents.",
+      "depends_on": [
+        {
+          "task_key": "dbt_transform_medallion"
+        }
+      ],
+      "pipeline_task": {
+        "pipeline_id": "dlt-dcsp-semantic-layer-pipeline-id",
+        "full_refresh": false
+      },
+      "max_retries": 1,
+      "timeout_seconds": 900
+    },
+    {
+      "task_key": "publish_semantic_catalog_views",
+      "description": "Applies governed Unity Catalog Metric Views and grants SELECT privileges to BI/AI service principals.",
+      "depends_on": [
+        {
+          "task_key": "dlt_unity_catalog_semantic_views"
+        }
+      ],
+      "sql_task": {
+        "warehouse_id": "databricks_sql_serverless_warehouse_id",
+        "file": {
+          "path": "semantic_layer/databricks_uc_views.sql",
+          "source": "GIT"
+        }
+      },
+      "timeout_seconds": 300
+    }
+  ],
+  "git_source": {
+    "git_url": "https://github.com/example-org/data-contracts-semantic-platform.git",
+    "git_provider": "gitHub",
+    "git_branch": "main"
+  },
+  "run_as": {
+    "service_principal_name": "sp-dcsp-lakehouse-runner"
+  }
+}

@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Current customer dimension derived from SCD Type 2 snapshot."
+    columns:
+      - name: customer_sk
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: plan_tier
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Free", "Starter", "Growth", "Enterprise"]
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["active", "inactive", "churned", "trial"]
+
+  - name: dim_products
+    description: "Current product catalog dimension derived from SCD Type 2 snapshot."
+    columns:
+      - name: product_sk
+        tests:
+          - not_null
+          - unique
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        tests:
+          - not_null
+
+  - name: fct_orders
+    description: "Incremental order-level revenue fact table."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+      - name: order_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["completed", "pending", "cancelled", "refunded"]
+      - name: net_revenue
+        tests:
+          - not_null
+
+  - name: mart_revenue_analytics
+    description: "Incremental denormalized One Big Table (OBT) powering the semantic layer."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: net_revenue
+        tests:
+          - not_null

@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Contract-validated raw landing tables loaded from source systems."
+    schema: "{{ env_var('RAW_SCHEMA', 'raw') }}"
+    tables:
+      - name: raw_customers
+        description: "Raw customer master records."
+        loaded_at_field: updated_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+      - name: raw_products
+        description: "Raw product catalog records."
+        loaded_at_field: updated_at
+      - name: raw_orders
+        description: "Raw customer subscription and commerce orders."
+        loaded_at_field: updated_at
+        freshness:
+          warn_after: {count: 12, period: hour}
+          error_after: {count: 24, period: hour}
+      - name: raw_payments
+        description: "Raw payment gateway transaction events."
+        loaded_at_field: updated_at
+        freshness:
+          warn_after: {count: 12, period: hour}
+          error_after: {count: 24, period: hour}

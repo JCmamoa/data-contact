@@ -1,0 +1,64 @@
+dataset: raw_orders
+version: "1.0.0"
+owner: commerce-billing-team
+description: "Customer order line events with gross, discount, and tax amounts."
+block_on_critical: true
+sla:
+  freshness_hours: 6
+  completeness_pct: 99.95
+  delivery_schedule: "0 * * * *"
+columns:
+  order_id:
+    type: str
+    nullable: false
+    primary_key: true
+    description: "Unique order identifier"
+  customer_id:
+    type: str
+    nullable: false
+    description: "Foreign key to raw_customers.customer_id"
+  product_id:
+    type: str
+    nullable: false
+    description: "Foreign key to raw_products.product_id"
+  order_date:
+    type: str
+    nullable: false
+    pattern: '^\d{4}-\d{2}-\d{2}$'
+    description: "Order calendar date in YYYY-MM-DD format"
+  quantity:
+    type: int
+    nullable: false
+    min: 1
+    description: "Purchased unit quantity (>= 1)"
+  gross_amount:
+    type: float
+    nullable: false
+    min: 0.0
+    description: "Gross order amount before discounts and taxes"
+  discount_amount:
+    type: float
+    nullable: false
+    min: 0.0
+    description: "Promotional or contract discount amount"
+  tax_amount:
+    type: float
+    nullable: false
+    min: 0.0
+    description: "Calculated tax amount"
+  order_status:
+    type: str
+    nullable: false
+    allowed_values:
+      - paid
+      - refunded
+      - pending
+    description: "Order settlement lifecycle status"
+  currency:
+    type: str
+    nullable: false
+    allowed_values:
+      - BRL
+      - USD
+      - EUR
+    description: "ISO-4217 transaction currency"

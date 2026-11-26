@@ -1,0 +1,52 @@
+dataset: raw_customers
+version: "1.0.0"
+owner: revops-data-team
+description: "Customer master & subscription tier snapshots ingested from CRM/Billing."
+block_on_critical: true
+sla:
+  freshness_hours: 24
+  completeness_pct: 99.9
+  delivery_schedule: "0 */6 * * *"
+columns:
+  customer_id:
+    type: str
+    nullable: false
+    primary_key: true
+    description: "Unique customer identifier"
+  name:
+    type: str
+    nullable: false
+    description: "Customer account or contact name"
+  email:
+    type: str
+    nullable: false
+    pattern: '^[^@\s]+@[^@\s]+$'
+    description: "Primary billing contact email address"
+  plan_tier:
+    type: str
+    nullable: false
+    allowed_values:
+      - Starter
+      - Growth
+      - Enterprise
+    description: "Active subscription plan tier (tracked via SCD Type 2)"
+  country:
+    type: str
+    nullable: false
+    allowed_values:
+      - BR
+      - US
+      - DE
+      - UK
+    description: "ISO-2 billing country code"
+  status:
+    type: str
+    nullable: false
+    allowed_values:
+      - active
+      - churned
+    description: "Current customer lifecycle status"
+  updated_at:
+    type: str
+    nullable: false
+    description: "ISO-8601 snapshot update timestamp"

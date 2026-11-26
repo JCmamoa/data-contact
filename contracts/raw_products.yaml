@@ -1,0 +1,40 @@
+dataset: raw_products
+version: "1.0.0"
+owner: product-catalog-team
+description: "SaaS, Add-on, and Professional Services SKU catalog."
+block_on_critical: true
+sla:
+  freshness_hours: 24
+  completeness_pct: 100.0
+  delivery_schedule: "0 2 * * *"
+columns:
+  product_id:
+    type: str
+    nullable: false
+    primary_key: true
+    description: "Unique product identifier"
+  sku:
+    type: str
+    nullable: false
+    description: "Stock keeping / billing SKU code"
+  product_name:
+    type: str
+    nullable: false
+    description: "Human-readable product display name"
+  category:
+    type: str
+    nullable: false
+    allowed_values:
+      - SaaS
+      - Add-on
+      - Services
+    description: "Revenue classification category"
+  unit_price:
+    type: float
+    nullable: false
+    min: 0.01
+    description: "Base unit price in catalog currency (must be > 0)"
+  updated_at:
+    type: str
+    nullable: false
+    description: "ISO-8601 catalog update timestamp"

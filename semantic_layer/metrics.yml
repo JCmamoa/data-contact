@@ -1,0 +1,88 @@
+version: 1
+catalog_name: centralized_semantic_layer
+
+allowed_dimensions:
+  - order_month
+  - country
+  - plan_tier
+  - category
+  - payment_method
+
+metrics:
+  net_revenue:
+    label_pt: "Receita Liquida"
+    label_en: "Net Revenue"
+    description: "Total net revenue from paid orders."
+    unit: currency
+    model: mart_revenue_analytics
+    expression: "SUM(CASE WHEN order_status = 'paid' THEN net_revenue ELSE 0 END)"
+    allowed_dimensions:
+      - order_month
+      - country
+      - plan_tier
+      - category
+      - payment_method
+
+  gross_revenue:
+    label_pt: "Receita Bruta"
+    label_en: "Gross Revenue"
+    description: "Total gross order revenue before deductions."
+    unit: currency
+    model: mart_revenue_analytics
+    expression: "SUM(gross_revenue)"
+    allowed_dimensions:
+      - order_month
+      - country
+      - plan_tier
+      - category
+      - payment_method
+
+  average_order_value:
+    label_pt: "Ticket Medio"
+    label_en: "Average Order Value"
+    description: "Mean net revenue per paid order."
+    unit: currency
+    model: mart_revenue_analytics
+    expression: "ROUND(AVG(CASE WHEN order_status = 'paid' THEN net_revenue END), 2)"
+    allowed_dimensions:
+      - order_month
+      - country
+      - plan_tier
+      - category
+      - payment_method
+
+  take_rate_pct:
+    label_pt: "Taxa de Intermediacao (%)"
+    label_en: "Take Rate (%)"
+    description: "Percentage of gross revenue captured as gateway fees."
+    unit: percent
+    model: mart_revenue_analytics
+    expression: "ROUND(100.0 * SUM(gateway_fee) / NULLIF(SUM(gross_revenue), 0), 2)"
+    allowed_dimensions:
+      - order_month
+      - country
+      - plan_tier
+      - category
+      - payment_method
+
+  retention_rate:
+    label_pt: "Taxa de Retencao (%)"
+    label_en: "Retention Rate (%)"
+    description: "Share of customers currently in active status."
+    unit: percent
+    model: dim_customers
+    expression: "ROUND(100.0 * SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2)"
+    allowed_dimensions:
+      - country
+      - plan_tier
+
+  churn_rate:
+    label_pt: "Taxa de Churn (%)"
+    label_en: "Churn Rate (%)"
+    description: "Share of customers currently in churned status."
+    unit: percent
+    model: dim_customers
+    expression: "ROUND(100.0 * SUM(CASE WHEN status = 'churned' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2)"
+    allowed_dimensions:
+      - country
+      - plan_tier

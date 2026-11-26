@@ -1,0 +1,83 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Standardized customer staging view."
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: plan_tier
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Free", "Starter", "Growth", "Enterprise"]
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["active", "inactive", "churned", "trial"]
+
+  - name: stg_products
+    description: "Standardized product catalog staging view."
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        tests:
+          - not_null
+      - name: category
+        tests:
+          - not_null
+
+  - name: stg_orders
+    description: "Standardized order staging view."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_products')
+              field: product_id
+      - name: order_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["completed", "pending", "cancelled", "refunded"]
+
+  - name: stg_payments
+    description: "Standardized payment transactions staging view."
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: payment_method
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["credit_card", "pix", "boleto", "wire_transfer", "ach"]
+      - name: payment_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["succeeded", "pending", "failed", "refunded"]

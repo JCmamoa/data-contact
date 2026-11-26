@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Local Data & Quarantine Artifacts
+data/*.db
+data/*.db-journal
+data/*.sqlite
+data/quarantine/*
+!data/quarantine/.gitkeep
+
+# dbt Artifacts
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+target/
+dbt_packages/
+logs/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Test & Coverage Reports
+.pytest_cache/
+.coverage
+htmlcov/
+junit*.xml
+k6-summary.json

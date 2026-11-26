@@ -1,0 +1,124 @@
+name: data-contracts-semantic-platform
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dcsp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-analytics}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-analytics_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-analytics_dw}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-analytics} -d ${POSTGRES_DB:-analytics_dw}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - platform_net
+
+  pipeline-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dcsp-pipeline-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PROJECT_NAME: ${PROJECT_NAME:-Data Contracts & Semantic Platform}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WAREHOUSE_SQLITE_PATH: ${WAREHOUSE_SQLITE_PATH:-data/warehouse.db}
+      QUARANTINE_DIR: ${QUARANTINE_DIR:-data/quarantine}
+      CONTRACTS_DIR: ${CONTRACTS_DIR:-contracts}
+      METRICS_YAML_PATH: ${METRICS_YAML_PATH:-semantic_layer/metrics.yml}
+      POSTGRES_DSN: postgresql://${POSTGRES_USER:-analytics}:${POSTGRES_PASSWORD:-analytics_dev_password}@postgres:5432/${POSTGRES_DB:-analytics_dw}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - warehouse_data:/app/data
+      - quarantine_data:/app/data/quarantine
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - platform_net
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: dcsp-prometheus
+    restart: unless-stopped
+    depends_on:
+      pipeline-api:
+        condition: service_started
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - platform_net
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: dcsp-grafana
+    restart: unless-stopped
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin_dev_password}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - platform_net
+
+volumes:
+  postgres_data:
+    driver: local
+  warehouse_data:
+    driver: local
+  quarantine_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  platform_net:
+    driver: bridge
