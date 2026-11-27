@@ -16,6 +16,28 @@ A production-grade analytics engineering platform demonstrating **Shift-Left Dat
 
 ---
 
+## About
+
+**Data Contracts & Semantic Layer Analytics Platform** is an end-to-end analytics engineering platform built to eliminate broken upstream schemas and metric drift across BI tools and AI agents.
+
+- **Website:** `https://jcmamoa.github.io/data-contact/`
+- **Topics:** `data-engineering`, `data-contracts`, `dbt`, `semantic-layer`, `analytics-engineering`, `scd-type-2`, `postgresql`, `terraform`, `databricks`, `prometheus`, `opentelemetry`, `k6`
+
+## Description
+
+This project implements a full modern data stack locally (with Docker/PostgreSQL/SQLite) and mirrors it to AWS & Databricks IaC:
+1. **Shift-Left Data Contracts (`contracts/`, `ingestion/`):** ODCS-inspired YAML contracts validate incoming records before ingestion; critical schema, null, enum, or range violations block the pipeline, write offending records to quarantine, and dispatch alerts.
+2. **Dimensional & SCD Type 2 Warehouse (`dbt/`, `pipeline/`):** Complete dbt Core project (`view` staging, `ephemeral` intermediate, `table` dimensions, `incremental` OBT mart & facts, SCD Type 2 customer/product snapshots) plus a local SQLite runner executing 20 automated quality checks.
+3. **Centralized Semantic Layer (`semantic_layer/`):** Single source of truth for KPIs (`net_revenue`, `gross_revenue`, `average_order_value`, `take_rate_pct`, `retention_rate`, `churn_rate`) exposed over FastAPI with allowlisted dimensions and query caching.
+4. **Observability, IaC & Load Testing (`observability/`, `infra/`, `tests/load/`):** OpenTelemetry-compatible tracing, Prometheus metrics + Grafana provisioning, Terraform AWS + Databricks workflows, and k6 load tests (`p(95) < 250ms`).
+
+## Releases
+
+- **Current Release:** [`v1.0.0`](CHANGELOG.md) (2026-11-26) — Complete Data Contracts engine, dbt + SCD Type 2 warehouse (`20/20` quality tests), centralized Semantic Layer API, AWS/Databricks IaC, k6 load tests, interactive showcase, and `27/27` passing tests.
+- **Release Notes:** See [`CHANGELOG.md`](CHANGELOG.md).
+
+---
+
 ## Visual Showcase (Real Pipeline Outputs)
 
 | Net Revenue by Country (`mart_revenue_analytics`) | Monthly Net Revenue Trend (Jan–Jun 2026) |
